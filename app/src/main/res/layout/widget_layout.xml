@@ -1,0 +1,45 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Barra de progresso do tempo -->
+    <TextView
+        android:id="@+id/widget_time_bar"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/black" />
+
+    <!-- Contêiner para os marcadores de hora -->
+    <LinearLayout
+        android:id="@+id/markers_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"> <!-- Ajuste da gravidade -->
+
+        <!-- Marcadores de intervalo -->
+        <TextView
+            android:id="@+id/widget_marker"
+            android:layout_width="2dp"
+            android:layout_height="10dp"
+            android:background="@android:color/black" />
+    </LinearLayout>
+
+    <!-- Hora de início -->
+    <TextView
+        android:id="@+id/start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0h" /> <!-- O texto será atualizado no código -->
+
+    <!-- Hora de fim -->
+    <TextView
+        android:id="@+id/end_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="24h" /> <!-- O texto será atualizado no código -->
+
+</LinearLayout>

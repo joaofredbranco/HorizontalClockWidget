@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="widget_width">300dp</dimen>
+    <dimen name="widget_height">100dp</dimen>
+</resources>
