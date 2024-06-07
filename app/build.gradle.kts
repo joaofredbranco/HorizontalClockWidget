@@ -7,10 +7,6 @@ android {
     namespace = "com.example.horizontalclockwidget"
     compileSdk = 34
 
-    viewBinding {
-        enable = true
-    }
-
     defaultConfig {
         applicationId = "com.example.horizontalclockwidget"
         minSdk = 21
@@ -30,9 +26,7 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    buildFeatures {
+        viewBinding = true
         dataBinding = true
     }
 

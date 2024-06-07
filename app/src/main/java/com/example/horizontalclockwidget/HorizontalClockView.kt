@@ -62,9 +62,17 @@ class HorizontalClockView @JvmOverloads constructor(
 
         val calendar = Calendar.getInstance()
         val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-        val markerX = padding + ((currentHour - startTime) / (endTime - startTime).toFloat()) * (width - 2 * padding)
+        val currentMinute = calendar.get(Calendar.MINUTE)
+        val currentTotalMinutes = currentHour * 60 + currentMinute
+        val startTotalMinutes = startTime * 60
+        val endTotalMinutes = endTime * 60
+        val totalTime = endTotalMinutes - startTotalMinutes
+        val elapsedTime = currentTotalMinutes - startTotalMinutes
+        val percentage = (elapsedTime.toFloat() / totalTime) * 100
+        val markerX = padding + (percentage / 100) * (width - 2 * padding)
+
         canvas.drawLine(markerX, height / 2 - 30, markerX, height / 2 + 30, markerPaint)
-        Log.d("HorizontalClockView", "Drew current time marker at: $markerX for hour: $currentHour")
+        Log.d("HorizontalClockView", "Drew current time marker at: $markerX for time percentage: $percentage")
 
         canvas.drawText("$startTime h", padding, height / 2 + 60, textPaint)
         canvas.drawText("$endTime h", width - textPaint.measureText("$endTime h") - padding, height / 2 + 60, textPaint)

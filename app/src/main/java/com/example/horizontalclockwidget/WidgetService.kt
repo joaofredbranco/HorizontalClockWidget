@@ -9,6 +9,8 @@ import android.content.Intent
 import android.os.IBinder
 import android.graphics.Color
 import android.util.Log
+import android.view.View
+import java.util.*
 
 class WidgetService : Service() {
     override fun onBind(intent: Intent?): IBinder? {
@@ -19,61 +21,64 @@ class WidgetService : Service() {
         Log.d("WidgetService", "onStartCommand called")
 
         val widgetManager = AppWidgetManager.getInstance(this)
-        val thisWidget = ComponentName(this, WidgetProvider::class.java)
-        val allWidgetIds = widgetManager.getAppWidgetIds(thisWidget)
 
-        for (widgetId in allWidgetIds) {
-            Log.d("WidgetService", "Updating widget ID: $widgetId")
-
-            val views = RemoteViews(packageName, R.layout.widget_layout)
-
-            val prefs = getSharedPreferences(WidgetConfigActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        // Update the first widget type
+        updateWidgets(
+            widgetManager,
+            ComponentName(this, WidgetProvider::class.java),
+            R.layout.widget_layout
+        ) { context, views, prefs, widgetId ->
             val startTime = prefs.getInt(WidgetConfigActivity.PREF_PREFIX_KEY + widgetId + "_startTime", 0)
             val endTime = prefs.getInt(WidgetConfigActivity.PREF_PREFIX_KEY + widgetId + "_endTime", 24)
-            val interval = prefs.getInt(WidgetConfigActivity.PREF_PREFIX_KEY + widgetId + "_interval", 1)
-            val lineColor = prefs.getInt(WidgetConfigActivity.PREF_PREFIX_KEY + widgetId + "_barColor", Color.BLACK)
-            val indicatorColor = prefs.getInt(WidgetConfigActivity.PREF_PREFIX_KEY + widgetId + "_indicatorColor", Color.RED)
+            val barColor = prefs.getInt(WidgetConfigActivity.PREF_PREFIX_KEY + widgetId + "_barColor", Color.RED)
 
-            Log.d("WidgetService", "startTime: $startTime, endTime: $endTime, interval: $interval, lineColor: $lineColor, indicatorColor: $indicatorColor")
+            val calendar = Calendar.getInstance()
+            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+            val currentMinute = calendar.get(Calendar.MINUTE)
+            val currentTotalMinutes = currentHour * 60 + currentMinute
 
-            // Atualizar a barra de tempo
-            configureTimeBar(views, lineColor, indicatorColor, startTime, endTime, interval)
+            val startTotalMinutes = startTime * 60
+            val endTotalMinutes = endTime * 60
+            val totalTime = endTotalMinutes - startTotalMinutes
+            val elapsedTime = currentTotalMinutes - startTotalMinutes
+            val percentage = (elapsedTime.toFloat() / totalTime)
 
-            views.setTextViewText(R.id.start_time, "$startTime:00")
-            views.setTextViewText(R.id.end_time, "$endTime:00")
+            val barViewWidth = context.resources.getDimensionPixelSize(R.dimen.widget_bar_width)
+            val indicatorPositionPx = (barViewWidth * percentage).toInt()
 
-            widgetManager.updateAppWidget(widgetId, views)
-            Log.d("WidgetService", "App widget updated: $widgetId")
+            views.setViewVisibility(R.id.fill_view, View.VISIBLE)
+            views.setInt(R.id.fill_view, "setWidth", barViewWidth)
+            views.setInt(R.id.fill_view, "setBackgroundColor", Color.TRANSPARENT) // Making fill_view transparent
+
+            views.setInt(R.id.indicator, "setBackgroundColor", barColor)
+            views.setFloat(R.id.indicator, "setTranslationX", indicatorPositionPx.toFloat())
+
+            views.setInt(R.id.indicator2, "setBackgroundColor", barColor)
+            views.setFloat(R.id.indicator2, "setTranslationX", indicatorPositionPx.toFloat())
+
+            views.setInt(R.id.indicator3, "setBackgroundColor", barColor)
+            views.setFloat(R.id.indicator3, "setTranslationX", indicatorPositionPx.toFloat())
+
+            views.setTextViewText(R.id.start_time, "$startTime h")
+            views.setTextViewText(R.id.end_time, "$endTime h")
         }
 
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun configureTimeBar(views: RemoteViews, lineColor: Int, indicatorColor: Int, startTime: Int, endTime: Int, interval: Int) {
-        val currentTime = System.currentTimeMillis()
-        val totalMinutesInDay = (currentTime / (1000 * 60)).toInt() % 1440
-        val totalMinutesInInterval = (endTime - startTime) * 60
-        val currentPosition = ((totalMinutesInDay - (startTime * 60)).toFloat() / totalMinutesInInterval * 100).toInt()
-
-        Log.d("WidgetService", "Current position: $currentPosition")
-
-        views.setInt(R.id.widget_time_bar, "setBackgroundColor", lineColor)
-
-        val intervalCount = (endTime - startTime) / interval
-        val markerWidth = 100 / intervalCount
-        for (i in 0..intervalCount) {
-            val position = i * markerWidth
-            Log.d("WidgetService", "Marker position: $position")
-
-            val markerView = RemoteViews(packageName, R.layout.widget_marker)
-            markerView.setInt(R.id.widget_marker, "setBackgroundColor", Color.BLACK)
-            views.addView(R.id.markers_container, markerView)
+    private fun updateWidgets(
+        widgetManager: AppWidgetManager,
+        componentName: ComponentName,
+        layoutId: Int,
+        updateViews: (context: Context, views: RemoteViews, prefs: android.content.SharedPreferences, widgetId: Int) -> Unit
+    ) {
+        val allWidgetIds = widgetManager.getAppWidgetIds(componentName)
+        for (widgetId in allWidgetIds) {
+            val views = RemoteViews(packageName, layoutId)
+            val prefs = getSharedPreferences(WidgetConfigActivity.PREFS_NAME, Context.MODE_PRIVATE)
+            updateViews(this, views, prefs, widgetId)
+            widgetManager.updateAppWidget(widgetId, views)
+            Log.d("WidgetService", "App widget updated: $widgetId")
         }
-
-        val indicatorView = RemoteViews(packageName, R.layout.widget_indicator)
-        indicatorView.setInt(R.id.indicator, "setBackgroundColor", indicatorColor)
-        views.addView(R.id.markers_container, indicatorView)
-
-        Log.d("WidgetService", "Time bar configured with lineColor: $lineColor, indicatorColor: $indicatorColor")
     }
 }

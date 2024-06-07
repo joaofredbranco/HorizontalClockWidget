@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
-        android:text="Configure Widget"
+        android:text="Configure Second Widget"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <TextView
@@ -45,6 +45,18 @@
 
     <Spinner
         android:id="@+id/end_time_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Horizontal Time Interval Bars (h)" />
+
+    <Spinner
+        android:id="@+id/interval_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp" />
