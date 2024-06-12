@@ -69,6 +69,9 @@ class WidgetConfigActivity : Activity() {
                 "Red" -> Color.RED
                 "Green" -> Color.GREEN
                 "Blue" -> Color.BLUE
+                "Black" -> Color.BLACK
+                "White" -> Color.WHITE
+                "Yellow" -> Color.YELLOW
                 else -> Color.BLACK
             }
             val startTime = startTimeSpinner.selectedItem.toString().split(":")[0].toInt()
